@@ -10,15 +10,13 @@ def calculate_distance(point1, point2):
 
 def extract(cv2):
     gray_canvas = cv2.cvtColor(marker_canvas, cv2.COLOR_BGR2GRAY)
-    blurred_canvas = cv2.GaussianBlur(gray_canvas, (5, 5), 0)
-    _, binary_canvas = cv2.threshold(blurred_canvas, 127, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    text = reader.readtext(binary_canvas, detail=0)
+    text = reader.readtext(gray_canvas, detail=0, batch_size=5)
     print("Recognized Text:", " ".join(text))
 
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(min_detection_confidence=0.9)
+hands = mp_hands.Hands(min_detection_confidence=0.7, static_image_mode=False, min_tracking_confidence=0.6)
 mp_draw = mp.solutions.drawing_utils
-reader = easyocr.Reader(['en'])
+reader = easyocr.Reader(['en'], gpu=True)
 
 cap = cv2.VideoCapture(0)
 
@@ -146,9 +144,9 @@ while True:
                 else:
                     hover_start_time = None
 
-                if distance > 35:
+                if distance > 38:
                     if prev_x is not None and prev_y is not None:
-                        cv2.line(marker_canvas, (prev_x, prev_y), index_finger_pos, (255, 255, 255), 5)
+                        cv2.line(marker_canvas, (prev_x, prev_y), index_finger_pos, (255, 255, 255), 3)
                     prev_x, prev_y = index_finger_pos
                 else:
                     prev_x, prev_y = None, None
